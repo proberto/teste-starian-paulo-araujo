@@ -1,0 +1,46 @@
+<div style="padding: 20px; font-family: Arial;">
+  <h1>{{ title }}</h1>
+
+  <div style="margin-bottom: 20px;">
+    <input 
+      type="text" 
+      [(ngModel)]="newTodo.title" 
+      placeholder="Digite uma nova tarefa"
+      style="padding: 8px; width: 300px;"
+    />
+    <button 
+      (click)="addTodo()" 
+      style="padding: 8px 16px; margin-left: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer;"
+    >
+      Adicionar
+    </button>
+  </div>
+
+  <div>
+    <h2>Tarefas</h2>
+    
+    <div *ngIf="todos.length === 0" style="color: gray;">
+      Nenhuma tarefa encontrada.
+    </div>
+    
+    <ul style="list-style-type: none; padding: 0;">
+      <li 
+        *ngFor="let todo of todos" 
+        style="padding: 10px; margin-bottom: 5px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;"
+      >
+        <span [style.text-decoration]="todo.completed ? 'line-through' : 'none'">
+          {{ todo.title }}
+        </span>
+        
+        <button 
+          (click)="removeTodo(todo.id)" 
+          style="background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer;"
+        >
+          Remover
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<router-outlet />

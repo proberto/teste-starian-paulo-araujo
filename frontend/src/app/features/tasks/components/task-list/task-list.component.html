@@ -1,0 +1,15 @@
+<div class="task-list">
+  <h2 class="task-list__title">Tarefas</h2>
+
+  <p *ngIf="tasks.length === 0" class="task-list__empty">
+    Nenhuma tarefa encontrada.
+  </p>
+
+  <ul *ngIf="tasks.length > 0" class="task-list__items">
+    <app-task-item
+      *ngFor="let task of tasks"
+      [task]="task"
+      (taskRemove)="taskRemove.emit($event)"
+    />
+  </ul>
+</div>

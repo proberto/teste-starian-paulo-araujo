@@ -1,0 +1,36 @@
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.task-item__title {
+  flex: 1;
+  word-break: break-word;
+
+  &--completed {
+    text-decoration: line-through;
+    color: #888;
+  }
+}
+
+.task-item__remove {
+  flex-shrink: 0;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+
+  &:hover {
+    background-color: #e53935;
+  }
+}

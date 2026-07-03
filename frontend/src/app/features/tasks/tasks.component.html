@@ -1,0 +1,14 @@
+<div class="tasks">
+  <h1 class="tasks__title">Todo List</h1>
+
+  <app-task-form (taskSubmit)="onTaskSubmit($event)" />
+
+  <p *ngIf="loading" class="tasks__message">Carregando tarefas...</p>
+  <p *ngIf="error" class="tasks__error" role="alert">{{ error }}</p>
+
+  <app-task-list
+    *ngIf="!loading"
+    [tasks]="tasks"
+    (taskRemove)="onTaskRemove($event)"
+  />
+</div>

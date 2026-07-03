@@ -1,0 +1,11 @@
+<form class="task-form" (ngSubmit)="onSubmit()">
+  <input
+    type="text"
+    class="task-form__input"
+    [(ngModel)]="title"
+    name="title"
+    placeholder="Digite uma nova tarefa"
+    aria-label="Nova tarefa"
+  />
+  <button type="submit" class="task-form__button">Adicionar</button>
+</form>

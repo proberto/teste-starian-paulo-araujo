@@ -1,0 +1,16 @@
+<li class="task-item">
+  <span
+    class="task-item__title"
+    [class.task-item__title--completed]="task.completed"
+  >
+    {{ task.title }}
+  </span>
+  <button
+    type="button"
+    class="task-item__remove"
+    (click)="onRemove()"
+    aria-label="Remover tarefa"
+  >
+    Remover
+  </button>
+</li>

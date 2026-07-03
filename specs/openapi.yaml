@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  title: Tarefas API
+  description: API REST para gerenciamento de tarefas (Todo List)
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Desenvolvimento local
+
+paths:
+  /tarefas:
+    get:
+      summary: Listar todas as tarefas
+      operationId: listTasks
+      tags:
+        - Tarefas
+      responses:
+        '200':
+          description: Lista de tarefas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+
+    post:
+      summary: Criar uma nova tarefa
+      operationId: createTask
+      tags:
+        - Tarefas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: Tarefa criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '422':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /tarefas/{id}:
+    delete:
+      summary: Remover uma tarefa
+      operationId: deleteTask
+      tags:
+        - Tarefas
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tarefa removida com sucesso
+        '404':
+          description: Tarefa não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - completed
+        - created_at
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Comprar leite
+        completed:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          example: '2026-07-01T12:00:00Z'
+
+    CreateTaskRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Nova tarefa
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The title field is required.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    NotFoundError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Tarefa não encontrada.

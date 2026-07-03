@@ -2,22 +2,21 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Task;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (Task::count() > 0) {
+            return;
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        Task::insert([
+            ['title' => 'Tarefa 1', 'completed' => false, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'Tarefa 2', 'completed' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'Tarefa 3', 'completed' => false, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

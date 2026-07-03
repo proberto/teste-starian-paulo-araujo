@@ -51,7 +51,7 @@ Domain (Repository Interface)
         ↓
 Infrastructure (Eloquent Repository)
         ↓
-Database (SQLite via Eloquent Model)
+Database (PostgreSQL via Eloquent Model)
 ```
 
 ### Princípios aplicados
@@ -97,7 +97,7 @@ Exemplo: `POST /api/v1/tarefas` com `{ "title": "Nova tarefa" }`
    → delega ao TaskRepositoryInterface
 
 5. EloquentTaskRepository
-   → persiste via Model Task no SQLite
+   → persiste via Model Task no PostgreSQL
 
 6. TaskResource
    → serializa a resposta JSON sem wrapper "data"
@@ -299,7 +299,7 @@ Cria a tabela `tasks`:
 | `created_at` / `updated_at` | timestamp | Auditoria |
 
 **Por quê:**
-- SQLite (já configurado no `.env.example`) é suficiente para desenvolvimento e testes.
+- PostgreSQL oferece melhor escalabilidade, concorrência e suporte a tipos avançados em produção.
 - Migrations versionam o schema e permitem reproduzir o banco em qualquer ambiente.
 - IDs gerados pelo banco eliminam colisões da lógica manual `max(id) + 1`.
 
@@ -371,7 +371,7 @@ Configura CORS restrito às origens do frontend Angular:
 | `test_can_delete_task` | DELETE retorna 204 e remove do banco |
 | `test_cannot_delete_nonexistent_task` | DELETE com ID inexistente retorna 404 |
 
-Usa `RefreshDatabase` para isolar cada teste com banco limpo.
+Usa `RefreshDatabase` para isolar cada teste com banco limpo (SQLite em memória via `phpunit.xml`, sem depender do PostgreSQL).
 
 **Por quê:** garante que a refatoração não quebrou o comportamento esperado e serve como documentação viva do contrato da API (Spec-Driven).
 
@@ -383,21 +383,29 @@ Usa `RefreshDatabase` para isolar cada teste com banco limpo.
 
 **Antes:** `php:8.3-fpm` com `CMD php-fpm` (incompatível com `php artisan serve` no compose).
 
-**Depois:** `php:8.3-cli` com extensões `pdo_sqlite` e `zip`, `WORKDIR /var/www`, `CMD php artisan serve`.
+**Depois:** `php:8.3-cli` com extensões `pdo_pgsql` e `zip`, `WORKDIR /var/www`, `CMD php artisan serve`.
 
 **Por quê:**
 - `php-cli` é o correto para rodar o servidor embutido do Artisan.
-- `pdo_sqlite` habilita o banco SQLite configurado no projeto.
+- `pdo_pgsql` habilita a conexão com PostgreSQL.
 - `WORKDIR` alinhado com o volume do `docker-compose.yml` (`./backend:/var/www`).
 
-O `docker-compose.yml` (na raiz) executa migrations e seed automaticamente no startup:
+O `docker-compose.yml` (na raiz) sobe o serviço `postgres` e executa migrations e seed automaticamente no startup do Laravel:
 
 ```bash
-touch database/database.sqlite &&
 php artisan migrate --force &&
 php artisan db:seed --force &&
 php artisan serve --host=0.0.0.0 --port=8000
 ```
+
+**Serviço PostgreSQL no Docker:**
+
+| Variável | Valor |
+|----------|-------|
+| `POSTGRES_DB` | `tarefas` |
+| `POSTGRES_USER` | `laravel` |
+| `POSTGRES_PASSWORD` | `secret` |
+| Porta exposta | `5432` |
 
 ---
 
@@ -405,7 +413,7 @@ php artisan serve --host=0.0.0.0 --port=8000
 
 | Arquivo | Motivo da remoção |
 |---------|-------------------|
-| `storage/tarefas.json` | Substituído por banco de dados SQLite |
+| `storage/tarefas.json` | Substituído por banco de dados PostgreSQL |
 | `app/Http/Middleware/CorsMiddleware.php` | Substituído por `config/cors.php` nativo do Laravel |
 
 ---
@@ -449,17 +457,29 @@ docker compose up --build
 
 API disponível em: http://localhost:8000/api/v1/tarefas
 
-### Localmente
+### Localmente (com PostgreSQL)
+
+Certifique-se de ter o PostgreSQL rodando e crie o banco `tarefas`:
 
 ```bash
 cd backend
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite
 composer install
 php artisan migrate
 php artisan db:seed
 php artisan serve
+```
+
+Variáveis de conexão no `.env`:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=tarefas
+DB_USERNAME=laravel
+DB_PASSWORD=secret
 ```
 
 ---
@@ -531,6 +551,5 @@ backend/
 
 - [ ] Adicionar endpoint `PATCH /tarefas/{id}` para marcar como concluída
 - [ ] Paginação na listagem (`GET /tarefas?page=1&per_page=10`)
-- [ ] Migrar de SQLite para MySQL/PostgreSQL em produção
 - [ ] Laravel Pint para formatação automática de código
 - [ ] CI/CD com GitHub Actions executando `php artisan test`

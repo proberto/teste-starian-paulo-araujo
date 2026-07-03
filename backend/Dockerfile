@@ -1,18 +1,17 @@
-FROM php:8.3-fpm
+FROM php:8.3-cli
 
-# Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl libpng-dev \
-    && docker-php-ext-install zip pdo pdo_mysql
+    libzip-dev zip unzip git curl libpq-dev \
+    && docker-php-ext-install zip pdo pdo_pgsql
 
-# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Definir diretório
-WORKDIR /backend
+WORKDIR /var/www
 
 COPY . .
 
-RUN composer install
+RUN composer install --no-interaction --prefer-dist
 
-CMD ["php-fpm"]
+EXPOSE 8000
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
